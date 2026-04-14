@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+
+# Browser profile (Playwright persistent context — contains session cookies)
+browser_profile/
+
+# Environment variables
+.env
+# Keep .env.example (it's a template, safe to commit)
+
+# Claude settings (local overrides)
+.claude/settings.local.json
+
+# Compiled executables
+*.exe
+
+# OS
+Thumbs.db
+.DS_Store

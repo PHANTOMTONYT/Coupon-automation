@@ -1,0 +1,152 @@
+[
+  {
+    "name": "aws-waf-token",
+    "value": "ddc9a8fe-2ad4-4737-835f-23d1fb474f42:BQoAmIh7HigUAAAA:OwjFP9WOxiWRVbo1Lodrqz1GGeYhFGSRTkRJYmPc9bfo5kun41OjEYG2spKd6EfShpeFhqmizo89oOSiaZU7TiaK90eu2Y0rAcAtfGb606ZpSrEKOvsoEe9io/8Qb+dNz5t36UE52ND68aX0BuCBqnM8dM7jbGujwQ9+V7Hjr530TTVSy5FJ2PzBJ2I3NitNHGvu+ao4qjc=",
+    "domain": ".www.amazon.in",
+    "path": "/",
+    "expires": 1776533947,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "session-id",
+    "value": "522-6583679-3177452",
+    "domain": ".amazon.in",
+    "path": "/",
+    "expires": 1807724348.237949,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "session-id-time",
+    "value": "2082787201l",
+    "domain": ".amazon.in",
+    "path": "/",
+    "expires": 1807724348.238099,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "i18n-prefs",
+    "value": "INR",
+    "domain": ".amazon.in",
+    "path": "/",
+    "expires": 1807724348.238147,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "lc-acbin",
+    "value": "en_IN",
+    "domain": ".amazon.in",
+    "path": "/",
+    "expires": 1807724348.238217,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "ad-id",
+    "value": "A18E9g_7TUgPm-sMTdVUF1I",
+    "domain": ".amazon-adsystem.com",
+    "path": "/",
+    "expires": 1798825169.474824,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "ad-privacy",
+    "value": "0",
+    "domain": ".amazon-adsystem.com",
+    "path": "/",
+    "expires": 1810748369.475011,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "ubid-acbin",
+    "value": "525-7381004-8356412",
+    "domain": ".amazon.in",
+    "path": "/",
+    "expires": 1807724366.886672,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "csm-hit",
+    "value": "tb:s-XF2T8500ZJV4E4J7R6ZV|1776188367037&t:1776188368426&adb:adblk_no",
+    "domain": "www.amazon.in",
+    "path": "/",
+    "expires": 1806428368,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "__bpn_uid",
+    "value": "8e38a71e-954f-4903-819e-7e69b2c87bd4",
+    "domain": ".userreport.com",
+    "path": "/",
+    "expires": 1807724369.934385,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "__ur_dc",
+    "value": "1776181299326",
+    "domain": ".userreport.com",
+    "path": "/",
+    "expires": 1807724369.934543,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "__bpn_puid",
+    "value": "1f133dbc-478f-4975-9f91-7c6f3ef1c332",
+    "domain": ".userreport.com",
+    "path": "/",
+    "expires": 1807724369.93459,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "test_cookie",
+    "value": "CheckForPermission",
+    "domain": ".doubleclick.net",
+    "path": "/",
+    "expires": 1776189270.010164,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "rxc",
+    "value": "AF6xGhdg/qimyzNPDKU",
+    "domain": "www.amazon.in",
+    "path": "/",
+    "expires": 1776274770.031785,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "i",
+    "value": "291c9d6e-77bc-4e4f-b098-e61d04b9e88c|1776188370",
+    "domain": ".openx.net",
+    "path": "/",
+    "expires": 1807724370.04055,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  }
+]

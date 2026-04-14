@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/Scripts/python.exe -c \"import setuptools; print\\('ok'\\)\")",
+      "Bash(.venv/Scripts/python.exe -c \"import pkg_resources; print\\('ok'\\)\")",
+      "Bash(.venv/Scripts/python.exe -c \"import verify_coupon; print\\('imports OK'\\)\")",
+      "Bash(.venv/Scripts/python.exe -c \"import verify_coupon; print\\('OK'\\)\")"
+    ]
+  }
+}

@@ -1,0 +1,233 @@
+
+<h2 class="sr-only">PRD: Amazon coupon verification POC using Playwright</h2>
+
+<div style="padding: 1.5rem 0; max-width: 780px;">
+
+  <!-- Header -->
+  <div style="margin-bottom: 2rem;">
+    <p style="font-size: 12px; color: var(--color-text-tertiary); margin: 0 0 4px;">PRD — POC</p>
+    <h1 style="font-size: 22px; font-weight: 500; margin: 0 0 8px; color: var(--color-text-primary);">Amazon coupon code verifier</h1>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <span style="font-size: 12px; padding: 3px 10px; border-radius: var(--border-radius-md); background: var(--color-background-info); color: var(--color-text-info);">v0.1 — POC</span>
+      <span style="font-size: 12px; padding: 3px 10px; border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary);">Playwright + Python</span>
+      <span style="font-size: 12px; padding: 3px 10px; border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary);">1 night build</span>
+    </div>
+  </div>
+
+  <!-- Objective -->
+  <div style="margin-bottom: 2rem;">
+    <p style="font-size: 14px; font-weight: 500; margin: 0 0 8px; color: var(--color-text-primary);">Objective</p>
+    <p style="font-size: 14px; color: var(--color-text-secondary); margin: 0; line-height: 1.7;">Build a proof-of-concept that takes an Amazon coupon/promo code as input, navigates to a hardcoded product, applies the code at cart level, and returns whether the code is valid or invalid — along with the discount value if valid.</p>
+  </div>
+
+  <!-- Scope -->
+  <div style="margin-bottom: 2rem;">
+    <p style="font-size: 14px; font-weight: 500; margin: 0 0 12px; color: var(--color-text-primary);">Scope</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem;">
+        <p style="font-size: 12px; color: var(--color-text-success); font-weight: 500; margin: 0 0 8px;">In scope</p>
+        <ul style="margin: 0; padding-left: 16px; font-size: 13px; color: var(--color-text-secondary); line-height: 2;">
+          <li>Single hardcoded ASIN (amazon.in)</li>
+          <li>Manual pre-login via real browser</li>
+          <li>Cookie injection into Playwright</li>
+          <li>Add to cart flow</li>
+          <li>Apply promo code at cart</li>
+          <li>Parse success / error message</li>
+          <li>Return structured result (valid, discount amount)</li>
+        </ul>
+      </div>
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem;">
+        <p style="font-size: 12px; color: var(--color-text-danger); font-weight: 500; margin: 0 0 8px;">Out of scope</p>
+        <ul style="margin: 0; padding-left: 16px; font-size: 13px; color: var(--color-text-secondary); line-height: 2;">
+          <li>Automated login / CAPTCHA handling</li>
+          <li>Multiple products or ASINs</li>
+          <li>Proxy / stealth infra</li>
+          <li>Bulk code verification</li>
+          <li>Actual order placement</li>
+          <li>Multi-country support</li>
+          <li>Retry / error recovery logic</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Happy path flow -->
+  <div style="margin-bottom: 2rem;">
+    <p style="font-size: 14px; font-weight: 500; margin: 0 0 12px; color: var(--color-text-primary);">Happy path flow</p>
+    <div style="display: flex; flex-direction: column; gap: 0;">
+
+      <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 0.5px solid var(--color-border-tertiary);">
+        <div style="min-width: 24px; height: 24px; border-radius: 50%; background: var(--color-background-info); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: var(--color-text-info); margin-top: 1px;">1</div>
+        <div>
+          <p style="font-size: 13px; font-weight: 500; margin: 0 0 2px; color: var(--color-text-primary);">Load cookies</p>
+          <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">Export Amazon session cookies manually → inject into Playwright context</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 0.5px solid var(--color-border-tertiary);">
+        <div style="min-width: 24px; height: 24px; border-radius: 50%; background: var(--color-background-info); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: var(--color-text-info); margin-top: 1px;">2</div>
+        <div>
+          <p style="font-size: 13px; font-weight: 500; margin: 0 0 2px; color: var(--color-text-primary);">Navigate to product</p>
+          <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">Go to hardcoded ASIN URL on amazon.in</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 0.5px solid var(--color-border-tertiary);">
+        <div style="min-width: 24px; height: 24px; border-radius: 50%; background: var(--color-background-info); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: var(--color-text-info); margin-top: 1px;">3</div>
+        <div>
+          <p style="font-size: 13px; font-weight: 500; margin: 0 0 2px; color: var(--color-text-primary);">Add to cart</p>
+          <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">Click 'Add to Cart' → confirm cart page loads</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 0.5px solid var(--color-border-tertiary);">
+        <div style="min-width: 24px; height: 24px; border-radius: 50%; background: var(--color-background-info); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: var(--color-text-info); margin-top: 1px;">4</div>
+        <div>
+          <p style="font-size: 13px; font-weight: 500; margin: 0 0 2px; color: var(--color-text-primary);">Open cart</p>
+          <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">Navigate to cart → verify item is present</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 0.5px solid var(--color-border-tertiary);">
+        <div style="min-width: 24px; height: 24px; border-radius: 50%; background: var(--color-background-info); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: var(--color-text-info); margin-top: 1px;">5</div>
+        <div>
+          <p style="font-size: 13px; font-weight: 500; margin: 0 0 2px; color: var(--color-text-primary);">Apply coupon</p>
+          <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">Find promo code input → fill code → click apply</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 0.5px solid var(--color-border-tertiary);">
+        <div style="min-width: 24px; height: 24px; border-radius: 50%; background: var(--color-background-info); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: var(--color-text-info); margin-top: 1px;">6</div>
+        <div>
+          <p style="font-size: 13px; font-weight: 500; margin: 0 0 2px; color: var(--color-text-primary);">Parse result</p>
+          <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">Read success message (discount applied) or error message (invalid code)</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; padding: 12px 0;">
+        <div style="min-width: 24px; height: 24px; border-radius: 50%; background: var(--color-background-info); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: var(--color-text-info); margin-top: 1px;">7</div>
+        <div>
+          <p style="font-size: 13px; font-weight: 500; margin: 0 0 2px; color: var(--color-text-primary);">Return output</p>
+          <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">Print structured result: { valid: bool, code: str, discount: str | null }</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Expected output -->
+  <div style="margin-bottom: 2rem;">
+    <p style="font-size: 14px; font-weight: 500; margin: 0 0 12px; color: var(--color-text-primary);">Expected output</p>
+    <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; font-family: var(--font-mono); font-size: 13px; color: var(--color-text-primary); line-height: 1.8;">
+      <div style="color: var(--color-text-success);"># valid code</div>
+      <div>{ "code": "SAVE20", "valid": true, "discount": "₹200 off", "message": "Promo code applied" }</div>
+      <br>
+      <div style="color: var(--color-text-danger);"># invalid code</div>
+      <div>{ "code": "FAKE99", "valid": false, "discount": null, "message": "Invalid promo code" }</div>
+    </div>
+  </div>
+
+  <!-- Tech stack -->
+  <div style="margin-bottom: 2rem;">
+    <p style="font-size: 14px; font-weight: 500; margin: 0 0 12px; color: var(--color-text-primary);">Tech stack</p>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px;">
+        <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 2px;">Language</p>
+        <p style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0;">Python 3.10+</p>
+      </div>
+
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px;">
+        <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 2px;">Automation</p>
+        <p style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0;">Playwright (sync)</p>
+      </div>
+
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px;">
+        <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 2px;">Browser</p>
+        <p style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0;">Chromium (headed)</p>
+      </div>
+
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px;">
+        <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 2px;">Stealth</p>
+        <p style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0;">Custom init script</p>
+      </div>
+
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px;">
+        <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 2px;">Target</p>
+        <p style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0;">amazon.in</p>
+      </div>
+
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px;">
+        <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 2px;">Input</p>
+        <p style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0;">CLI arg or .env</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Known risks -->
+  <div style="margin-bottom: 2rem;">
+    <p style="font-size: 14px; font-weight: 500; margin: 0 0 12px; color: var(--color-text-primary);">Known risks</p>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md);">
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">Amazon changes cart selectors</p>
+        <span style="font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md); background: var(--color-background-warning); color: var(--color-text-warning);">Medium</span>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md);">
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">Cookie session expires mid-run</p>
+        <span style="font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md); background: var(--color-background-warning); color: var(--color-text-warning);">Medium</span>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md);">
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">Coupon input not visible on all products</p>
+        <span style="font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md); background: var(--color-background-danger); color: var(--color-text-danger);">High</span>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md);">
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">Bot detection even with stealth</p>
+        <span style="font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md); background: var(--color-background-danger); color: var(--color-text-danger);">High</span>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md);">
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">Product page timeout (Amazon's heavy JS bundles)</p>
+        <span style="font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md); background: var(--color-background-warning); color: var(--color-text-warning);">Medium — Fixed</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Build timeline -->
+  <div>
+    <p style="font-size: 14px; font-weight: 500; margin: 0 0 12px; color: var(--color-text-primary);">Build timeline</p>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px;">
+        <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 2px;">Setup</p>
+        <p style="font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 2px;">15 min</p>
+        <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 0;">Install deps, cookie export</p>
+      </div>
+
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px;">
+        <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 2px;">Navigation</p>
+        <p style="font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 2px;">30 min</p>
+        <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 0;">Product page + add to cart</p>
+      </div>
+
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px;">
+        <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 2px;">Coupon logic</p>
+        <p style="font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 2px;">45 min</p>
+        <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 0;">Apply + parse result</p>
+      </div>
+
+      <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px;">
+        <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 0 0 2px;">Polish</p>
+        <p style="font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 2px;">30 min</p>
+        <p style="font-size: 11px; color: var(--color-text-tertiary); margin: 0;">Output format + demo ready</p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
