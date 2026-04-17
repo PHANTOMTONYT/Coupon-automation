@@ -1,7 +1,13 @@
 """
-Nykaa Coupon Code Verifier — Browser Use Cloud edition
+Nykaa Coupon Code Verifier — Playwright login + Browser Use Cloud task
 Usage:
   python verify_nykaa_coupon.py --code SAVE10
+
+Requires BROWSER_USE_API_KEY in .env
+Flow:
+  1. Local Playwright browser opens nykaa.com — you log in
+  2. Cookies are extracted and injected into Browser Use cloud session
+  3. Cloud agent verifies the coupon already authenticated
 """
 
 import argparse
@@ -10,127 +16,130 @@ import json
 import os
 
 from dotenv import load_dotenv
+from playwright.async_api import async_playwright
 from browser_use_sdk import AsyncBrowserUse
 from browser_use_sdk.types.session_update_action import SessionUpdateAction
 
 load_dotenv()
 
-API_KEY = os.getenv("BROWSER_USE_API_KEY") or os.getenv("BROWSER_USE", "")
-
-# ---------------------------------------------------------------------------
-# Config
-# ---------------------------------------------------------------------------
-
-PRODUCT_URL   = os.getenv(
+API_KEY     = os.getenv("BROWSER_USE_API_KEY", "")
+PRODUCT_URL = os.getenv(
     "NYKAA_PRODUCT_URL",
     "https://www.nykaa.com/dr-sheth-s-ceramide-vitamin-c-sunscreen/p/5237430",
 )
-NYKAA_HOME    = "https://www.nykaa.com"
-POLL_INTERVAL    = 5
-MAX_WAIT         = 300
-LLM_MODEL        = os.getenv("BU_LLM", "gemini-2.5-flash")
-NYKAA_EMAIL      = os.getenv("NYKAA_EMAIL", "")
-NYKAA_PASSWORD   = os.getenv("NYKAA_PASSWORD", "")
+NYKAA_HOME  = "https://www.nykaa.com"
+PROFILE_DIR = os.path.abspath("nykaa_profile")
 
 
-# ---------------------------------------------------------------------------
-# Verify coupon
-# ---------------------------------------------------------------------------
+async def get_nykaa_cookies() -> list:
+    """Open local browser, let user log in, return cookies."""
+    print("\n[Step 1] Opening local browser for Nykaa login...")
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(
+            channel="chrome",
+            headless=False,
+            args=["--start-maximized"],
+            ignore_default_args=["--enable-automation"],
+        )
+        context = await browser.new_context()
+        page = await context.new_page()
+        await page.goto(NYKAA_HOME)
+        print(">>> Nykaa is open in the browser window.")
+        print(">>> Please log in to Nykaa.")
+        input(">>> Press Enter once you are logged in...")
+        cookies = await context.cookies([NYKAA_HOME, "https://www.nykaa.com"])
+        await browser.close()
+    print(f"[Step 1] Done — extracted {len(cookies)} cookies.")
+    return cookies
+
 
 async def verify(code: str) -> dict:
-    print(f"\nVerifying: {code!r}")
+    print(f"\nVerifying coupon: {code!r}")
 
+    # Step 1: Get cookies from local login
+    cookies = await get_nykaa_cookies()
+
+    # Step 2: Create Browser Use cloud session
+    print("\n[Step 2] Creating cloud browser session...")
     client = AsyncBrowserUse(api_key=API_KEY)
-
     session = await client.sessions.create_session(keep_alive=True)
-    print(f"\n  🌐 Watch live: {session.live_url}\n")
+    print(f">>> Watch live: {session.live_url}")
 
-    # Build login instruction only if credentials are provided
-    login_step = ""
-    if NYKAA_EMAIL and NYKAA_PASSWORD:
-        login_step = f"""1. Go to {NYKAA_HOME} and log in using:
-   - Email: {NYKAA_EMAIL}
-   - Password: {NYKAA_PASSWORD}
-   After logging in, continue to the next step.
-"""
+    # Build cookie injection JS
+    cookie_js = "; ".join(
+        f"{c['name']}={c['value']}" for c in cookies if c.get("name") and c.get("value")
+    )
 
     task_prompt = f"""
 You are verifying whether the Nykaa coupon code "{code}" is valid.
 
-Follow these steps:
-{login_step}{"2" if login_step else "1"}. Navigate to the product page: {PRODUCT_URL}
-2. Click the bag/cart icon in the header to open the bag sidebar.
-3. In the sidebar, click "Apply now and save extra!" to open the coupons panel.
-4. In the coupon input field, type "{code}".
-   Note: this is a React-controlled input. If typing doesn't register, use JavaScript to set the value via the native HTMLInputElement setter and dispatch an input event with bubbles:true.
-5. Click the "Collect" or "Apply" button to submit.
-6. Wait for the result to appear.
-7. Return a JSON object with ONLY these two fields:
-   - "valid": true if the coupon was accepted, false otherwise
-   - "message": the exact success or error text shown on the page
+First, inject login cookies so you appear logged in:
+1. Go to https://www.nykaa.com
+2. Run this JavaScript in the browser console to set cookies:
+   document.cookie = "{cookie_js}; path=/; domain=.nykaa.com"
+3. Reload the page and confirm you are logged in (look for user account icon).
 
-Return ONLY the JSON. Example:
-{{"valid": true, "message": "Coupon applied successfully"}}
+Then verify the coupon:
+4. Navigate to: {PRODUCT_URL}
+5. Click the bag/cart icon in the header to open the bag sidebar.
+6. In the sidebar, click "Apply now and save extra!" to open the coupons panel.
+7. In the coupon input field, type "{code}".
+   If the React input doesn't register typing, use JavaScript:
+   var input = document.querySelector('input[placeholder*="coupon"], input[placeholder*="promo"]');
+   Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(input, '{code}');
+   input.dispatchEvent(new Event('input', {{bubbles: true}}));
+8. Click "Collect" or "Apply" button.
+9. Wait for the result message.
+10. Return ONLY a JSON object:
+    {{"valid": true, "message": "exact success message"}}
+    or
+    {{"valid": false, "message": "exact error message"}}
 """
 
-    secrets = {}
-    if NYKAA_EMAIL and NYKAA_PASSWORD:
-        secrets = {"nykaa_email": NYKAA_EMAIL, "nykaa_password": NYKAA_PASSWORD}
-
-    created = await client.tasks.create_task(
-        task=task_prompt,
-        session_id=session.id,
-        llm=LLM_MODEL,
-        secrets=secrets or None,
-        structured_output=json.dumps({
-            "type": "object",
-            "properties": {
-                "valid":   {"type": "boolean"},
-                "message": {"type": "string"}
-            },
-            "required": ["valid", "message"]
-        }),
-    )
-    task_id = created.id
-    print(f"  Task created: {task_id}  |  Model: {LLM_MODEL}")
-
-    result = {"code": code, "valid": False, "message": "Timed out waiting for task to complete"}
-    elapsed = 0
     try:
-        while elapsed < MAX_WAIT:
-            await asyncio.sleep(POLL_INTERVAL)
-            elapsed += POLL_INTERVAL
-            status_view = await client.tasks.get_task_status(task_id)
-            status = str(status_view.status)
-            print(f"  Status [{elapsed}s]: {status}")
+        print("\n[Step 3] Running coupon verification task...")
+        task = await client.tasks.create_task(
+            task=task_prompt,
+            session_id=session.id,
+        )
+        print(f"Task ID: {task.id}")
 
-            if status in ("finished", "stopped", "failed"):
-                output = getattr(status_view, "output", None)
-                if not output:
-                    result = {"code": code, "valid": False, "message": f"Task ended with status: {status}"}
-                    break
-                raw = str(output).strip()
-                if raw.startswith("```"):
-                    raw = raw.split("```")[1]
-                    if raw.startswith("json"):
-                        raw = raw[4:]
-                try:
-                    result = {"code": code, **json.loads(raw.strip())}
-                except json.JSONDecodeError:
-                    result = {"code": code, "valid": False, "message": raw}
+        while True:
+            status = await client.tasks.get_task_status(task.id)
+            state = getattr(status, "status", None) or getattr(status, "state", None)
+            print(f"  Status: {state}")
+            if state in ("finished", "stopped", "failed", "completed"):
                 break
+            await asyncio.sleep(5)
+
+        output = getattr(status, "output", None) or getattr(status, "result", None)
+        if not output:
+            return {"code": code, "valid": False, "message": "No output from task"}
+
+        raw = str(output).strip()
+        # Strip excess backslash escaping
+        while "\\\"" in raw:
+            raw = raw.replace("\\\"", "\"")
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+        result = json.loads(raw.strip())
+        return {"code": code, **result}
+
+    except json.JSONDecodeError:
+        return {"code": code, "valid": False, "message": f"Could not parse result: {raw!r}"}
+    except Exception as exc:
+        return {"code": code, "valid": False, "message": f"Error: {exc}"}
     finally:
-        await client.sessions.update_session(session.id, action=SessionUpdateAction.STOP)
+        try:
+            await client.sessions.update_session(session.id, action=SessionUpdateAction.STOP)
+        except Exception:
+            pass
 
-    return result
-
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="Nykaa Coupon Verifier (Browser Use Cloud)")
+    parser = argparse.ArgumentParser(description="Nykaa Coupon Verifier")
     parser.add_argument("--code", type=str, required=True, help="Coupon code to verify")
     args = parser.parse_args()
 
